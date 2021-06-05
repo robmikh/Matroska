@@ -14,8 +14,6 @@ namespace Matroska
 {
     public static class MatroskaSerializer
     {
-        private static readonly IDictionary<string, Dictionary<ulong, MatroskaElementInfo>> cache = new Dictionary<string, Dictionary<ulong, MatroskaElementInfo>>();
-
         public static MatroskaDocument Deserialize(Stream stream)
         {
             var reader = new EbmlReader(stream);
@@ -51,9 +49,10 @@ namespace Matroska
 
             try
             {
+                var cache = new Dictionary<string, Dictionary<ulong, MatroskaElementInfo>>();
                 while (reader.ReadNext())
                 {
-                    if (TryGetInfoByIdentifier(type, reader.ElementId.EncodedValue, out var info))
+                    if (TryGetInfoByIdentifier(cache, type, reader.ElementId.EncodedValue, out var info))
                     {
                         SetPropertyValue(instance, info, reader);
                     }
@@ -147,12 +146,12 @@ namespace Matroska
             return (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(genericType));
         }
 
-        private static bool TryGetInfoByIdentifier(Type type, ulong identifier, out MatroskaElementInfo info)
+        private static bool TryGetInfoByIdentifier(IDictionary<string, Dictionary<ulong, MatroskaElementInfo>> cache, Type type, ulong identifier, out MatroskaElementInfo info)
         {
-            return GetInfoFromCache(type).TryGetValue(identifier, out info);
+            return GetInfoFromCache(cache, type).TryGetValue(identifier, out info);
         }
 
-        private static Dictionary<ulong, MatroskaElementInfo> GetInfoFromCache(Type type)
+        private static Dictionary<ulong, MatroskaElementInfo> GetInfoFromCache(IDictionary<string, Dictionary<ulong, MatroskaElementInfo>> cache, Type type)
         {
             string key = type.FullName;
             if (!cache.ContainsKey(type.FullName))
