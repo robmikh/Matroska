@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -58,13 +59,13 @@ namespace Matroska
                     }
                     else
                     {
-                        Console.WriteLine($"WARNING: {instance.GetType().Name}: property {reader.GetName(true)} not mapped.");
+                        Debug.WriteLine($"WARNING: {instance.GetType().Name}: property {reader.GetName(true)} not mapped.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERROR: {instance.GetType().Name} at position {reader.ElementPosition} not mapped. Exception: {ex}");
+                Debug.WriteLine($"ERROR: {instance.GetType().Name} at position {reader.ElementPosition} not mapped. Exception: {ex}");
             }
 
             if (isMasterElement)
